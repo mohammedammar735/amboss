@@ -1,3 +1,4 @@
-flask
-selenium
-faker
+Flask>=2.0
+selenium>=4.0
+Faker>=10.0
+gunicorn # For deployment on Render
