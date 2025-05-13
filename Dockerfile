@@ -1,39 +1,39 @@
-FROM python:3.10-slim
+# Start with a Python base image that includes build tools
+FROM python:3.9-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    wget unzip curl gnupg2 ca-certificates \
-    fonts-liberation libxss1 libappindicator3-1 libasound2 \
-    libatk-bridge2.0-0 libgtk-3-0 libnss3 libx11-xcb1 \
-    libxcb-dri3-0 libgbm1 libxshmfence1 libxrandr2 \
-    libxcomposite1 libxcursor1 libxi6 libxtst6 libgl1-mesa-glx \
+# Install Google Chrome and other dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    # Add Chrome's apt key
+    && wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add - \
+    # Add Chrome to sources list
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
+    # Install Chrome
+    && apt-get update && apt-get install -y google-chrome-stable \
+    # Clean up
     && rm -rf /var/lib/apt/lists/*
 
-# Install Chrome for Testing v136
-RUN wget -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.92/linux64/chrome-linux64.zip && \
-    unzip /tmp/chrome-linux64.zip -d /opt && \
-    ln -s /opt/chrome-linux64/chrome /usr/bin/google-chrome && \
-    chmod +x /usr/bin/google-chrome
+# Install ChromeDriver (adjust version as needed to match Chrome version)
+# Check Chrome version with: google-chrome --version (e.g., Chrome 124)
+# Find matching ChromeDriver: https://googlechromelabs.github.io/chrome-for-testing/
+ARG CHROMEDRIVER_VERSION="124.0.6367.201" # Example: Match this to your Chrome version
+RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip \
+    && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
+    # The zip might contain a directory like chromedriver-linux64, so move the executable
+    && mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
+    && rm /tmp/chromedriver.zip \
+    && chmod +x /usr/local/bin/chromedriver
 
-# Install ChromeDriver v136
-RUN wget -O /tmp/chromedriver-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.92/linux64/chromedriver-linux64.zip && \
-    unzip /tmp/chromedriver-linux64.zip -d /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver
-
-
-# Set work directory
 WORKDIR /app
 
-# Copy code
-COPY . /app
-
-# Install Python dependencies
+COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose Flask port (optional)
-EXPOSE 5000
+COPY . .
 
-# Start Flask app
-CMD ["python", "app.py"]
+# Port Render expects
+ENV PORT 8080
+# Command to run your application
+CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
