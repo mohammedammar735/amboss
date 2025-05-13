@@ -16,12 +16,9 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install ChromeDriver (adjust version as needed to match Chrome version)
-# Check Chrome version with: google-chrome --version (e.g., Chrome 124)
-# Find matching ChromeDriver: https://googlechromelabs.github.io/chrome-for-testing/
 ARG CHROMEDRIVER_VERSION="124.0.6367.201" # Example: Match this to your Chrome version
 RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/${CHROMEDRIVER_VERSION}/linux64/chromedriver-linux64.zip \
     && unzip /tmp/chromedriver.zip -d /usr/local/bin/ \
-    # The zip might contain a directory like chromedriver-linux64, so move the executable
     && mv /usr/local/bin/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver \
     && rm /tmp/chromedriver.zip \
     && chmod +x /usr/local/bin/chromedriver
@@ -33,7 +30,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Port Render expects
+# Port Render will use (Render injects its own PORT env var, this is a default)
 ENV PORT 8080
-# Command to run your application
-CMD ["gunicorn", "--bind", "0.0.0.0:$PORT", "app:app"]
+
+# Command to run your application (using shell form for $PORT expansion)
+CMD gunicorn --bind 0.0.0.0:$PORT app:app
