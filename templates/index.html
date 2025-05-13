@@ -1,49 +1,66 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>AMBOSS Signup Bot</title>
-    <script>
-        function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Copied: " + text);
-            });
-        }
-
-        function createAccount() {
-            document.getElementById("output").innerText = "⏳ Creating account...";
-            fetch("/create_account", { method: "POST" })
-                .then(response => response.json())
-                .then(data => {
-                    const lines = (data.output || "").split("\n");
-                    const emailLine = lines.find(l => l.includes("📧 Email"));
-                    const passLine = lines.find(l => l.includes("🔐 Password"));
-
-                    if (emailLine && passLine) {
-    const email = emailLine.split(": ")[1];
-    const password = passLine.split(": ")[1];
-
-    document.getElementById("output").innerHTML = `
-        ✅ Account created!<br><br>
-        📧 Email: <b style='cursor:pointer' onclick="copyToClipboard('${email}')">${email}</b><br>
-        🔐 Password: <b style='cursor:pointer' onclick="copyToClipboard('${password}')">${password}</b>
-    `;
-} else {
-    document.getElementById("output").innerText =
-    (data.output || "") + "\\n" + (data.error || "❌ Script returned no account info.");
-
-}
-
-                })
-                .catch(error => {
-                    document.getElementById("output").innerText = "❌ Error: " + error;
-                });
-        }
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMBOSS Account Creator</title>
+    <style>
+        body { font-family: sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; font-size: 16px; color: #fff; background-color: #007bff; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #3498db; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; display: none; margin-top: 20px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        #result { margin-top: 20px; padding: 15px; background-color: #e9ecef; border-radius: 5px; }
+        .error { color: red; }
+    </style>
 </head>
-<body style="font-family:sans-serif;text-align:center;margin-top:50px;">
-    <h1>AMBOSS Account Generator</h1>
-    <button onclick="createAccount()" style="padding:10px 20px;font-size:16px;">Create AMBOSS Account</button>
-    <div id="output" style="margin-top:30px;font-size:18px;"></div>
+<body>
+    <div class="container">
+        <h1>AMBOSS Account Creator</h1>
+        <p>Click the button below to attempt to create a new AMBOSS account.</p>
+        <button id="createAccountBtn">Create Account</button>
+        <div class="loader" id="loader"></div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('createAccountBtn').addEventListener('click', function() {
+            document.getElementById('loader').style.display = 'block';
+            document.getElementById('result').innerHTML = '';
+            this.disabled = true;
+
+            fetch('/create_account', {
+                method: 'POST',
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('createAccountBtn').disabled = false;
+                let resultHtml = '';
+                if (data.error) {
+                    resultHtml += `<p class="error"><strong>Error:</strong> ${data.error}</p>`;
+                }
+                if (data.email) {
+                    resultHtml += `<p><strong>Email:</strong> ${data.email}</p>`;
+                }
+                if (data.password) {
+                    resultHtml += `<p><strong>Password:</strong> ${data.password}</p>`;
+                }
+                 if (data.status) {
+                    resultHtml += `<p><strong>Status:</strong> ${data.status}</p>`;
+                }
+                if (!data.error && !data.email) {
+                    resultHtml = '<p>No data returned. Check server logs.</p>';
+                }
+                document.getElementById('result').innerHTML = resultHtml;
+            })
+            .catch(error => {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('createAccountBtn').disabled = false;
+                document.getElementById('result').innerHTML = `<p class="error"><strong>Request Failed:</strong> ${error}. Check server logs.</p>`;
+            });
+        });
+    </script>
 </body>
 </html>
