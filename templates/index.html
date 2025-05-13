@@ -20,17 +20,19 @@
                     const passLine = lines.find(l => l.includes("🔐 Password"));
 
                     if (emailLine && passLine) {
-                        const email = emailLine.split(": ")[1];
-                        const password = passLine.split(": ")[1];
+    const email = emailLine.split(": ")[1];
+    const password = passLine.split(": ")[1];
 
-                        document.getElementById("output").innerHTML = `
-                            ✅ Account created!<br><br>
-                            📧 Email: <b style='cursor:pointer' onclick="copyToClipboard('${email}')">${email}</b><br>
-                            🔐 Password: <b style='cursor:pointer' onclick="copyToClipboard('${password}')">${password}</b>
-                        `;
-                    } else {
-                        document.getElementById("output").innerText = data.error || "❌ Failed to read account info.";
-                    }
+    document.getElementById("output").innerHTML = `
+        ✅ Account created!<br><br>
+        📧 Email: <b style='cursor:pointer' onclick="copyToClipboard('${email}')">${email}</b><br>
+        🔐 Password: <b style='cursor:pointer' onclick="copyToClipboard('${password}')">${password}</b>
+    `;
+} else {
+    document.getElementById("output").innerText =
+        (data.output || "") + "\\n" + (data.error || "❌ Script returned no account info.");
+}
+
                 })
                 .catch(error => {
                     document.getElementById("output").innerText = "❌ Error: " + error;
