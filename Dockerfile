@@ -20,8 +20,8 @@ RUN curl -sSL https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor 
 # Install Google Chrome stable
 RUN apt-get update && apt-get install -y google-chrome-stable
 
-# Install ChromeDriver (v124.0.6367.91) from official Chrome for Testing CDN
-RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/124.0.6367.91/linux64/chromedriver-linux64.zip && \
+# Install ChromeDriver v136 (matches Chrome v136 pre-installed on Render)
+RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/136.0.7103.92/linux64/chromedriver-linux64.zip && \
     unzip /tmp/chromedriver.zip -d /tmp/chromedriver && \
     mv /tmp/chromedriver/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
     chmod +x /usr/local/bin/chromedriver && \
