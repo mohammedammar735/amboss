@@ -12,17 +12,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Chrome for Testing v136
-RUN wget -O /tmp/chrome-linux.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/136.0.7103.92/linux64/chrome-linux.zip && \
-    unzip /tmp/chrome-linux.zip -d /opt && \
-    ln -s /opt/chrome-linux/chrome /usr/bin/google-chrome && \
+RUN wget -O /tmp/chrome-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.92/linux64/chrome-linux64.zip && \
+    unzip /tmp/chrome-linux64.zip -d /opt && \
+    ln -s /opt/chrome-linux64/chrome /usr/bin/google-chrome && \
     chmod +x /usr/bin/google-chrome
 
 # Install ChromeDriver v136
-RUN wget -O /tmp/chromedriver.zip https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/136.0.7103.92/linux64/chromedriver-linux64.zip && \
-    unzip /tmp/chromedriver.zip -d /tmp/chromedriver && \
-    mv /tmp/chromedriver/chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
-    chmod +x /usr/local/bin/chromedriver && \
-    rm -rf /tmp/chromedriver*
+RUN wget -O /tmp/chromedriver-linux64.zip https://storage.googleapis.com/chrome-for-testing-public/136.0.7103.92/linux64/chromedriver-linux64.zip && \
+    unzip /tmp/chromedriver-linux64.zip -d /usr/local/bin/ && \
+    chmod +x /usr/local/bin/chromedriver
+
 
 # Set work directory
 WORKDIR /app
