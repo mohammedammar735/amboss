@@ -1,4 +1,3 @@
-
 import random
 import string
 import time
@@ -10,33 +9,29 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 
-# Generate fake user data
 fake = Faker()
 first_name = fake.first_name()
 last_name = fake.last_name()
 email = f"{first_name.lower()}{random.randint(1000,9999)}@gmail.com"
 password = ''.join(random.choices(string.ascii_letters + string.digits + "!@#$%^&*", k=12))
 
-# Chrome options
 options = Options()
+options.binary_location = "/usr/bin/google-chrome"
 options.add_argument("--headless=new")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-dev-shm-usage")
 options.add_argument("--disable-gpu")
 options.add_argument("--disable-software-rasterizer")
-options.add_argument("--disable-extensions")
 options.add_argument("--remote-debugging-port=9222")
+options.add_argument("--disable-extensions")
 options.add_argument("--disable-background-networking")
 options.add_argument("--single-process")
-
-
 
 driver = webdriver.Chrome(service=Service("/usr/local/bin/chromedriver"), options=options)
 wait = WebDriverWait(driver, 20)
 
 try:
     driver.get("https://next.amboss.com/us/registration")
-
     wait.until(EC.presence_of_element_located((By.NAME, "email"))).send_keys(email)
     driver.find_element(By.NAME, "password").send_keys(password)
 
@@ -61,21 +56,18 @@ try:
 
     university_input = wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='University']")))
     university_input.click()
-    time.sleep(0.5)
     university_input.send_keys("Yale School of Medicine")
     time.sleep(1)
     university_input.send_keys(u'\ue007')
 
     grad_year_input = wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='Expected graduation year']")))
     grad_year_input.click()
-    time.sleep(0.5)
     grad_year_input.send_keys("2026")
     time.sleep(1)
     grad_year_input.send_keys(u'\ue007')
 
     objective_input = wait.until(EC.element_to_be_clickable((By.XPATH, "//input[@aria-label='Current Objective']")))
     driver.execute_script("arguments[0].click();", objective_input)
-    time.sleep(0.5)
     objective_input.send_keys("USMLE Step 2 CK")
     time.sleep(1)
     objective_input.send_keys(u'\ue007')
@@ -97,9 +89,12 @@ try:
     finish_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[.//div[text()='Finish set-up']]")))
     driver.execute_script("arguments[0].click();", finish_button)
 
-    result = f"✅ Account created\n📧 Email: {email}\n🔐 Password: {password}"
-    print(result)
+    print("✅ Account created!")
+    print(f"📧 Email: {email}")
+    print(f"🔐 Password: {password}")
+
 except Exception as e:
     print(f"❌ Error: {str(e)}")
+
 finally:
     driver.quit()
